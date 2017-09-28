@@ -1,0 +1,5 @@
+{% extends "MinimalManagerBundle::layout.html.twig" %}
+{%- block frame %}
+  <a href="{{path('minimal_manager_create',{module: module.name})}}" class="button">{{"Ajouter une nouvelle entrée"|trans}}</a>
+  {%- block content %}{% endblock -%}
+{% endblock -%}

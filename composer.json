@@ -1,0 +1,22 @@
+{
+    "name": "minimaloriginal/manager-bundle",
+    "description" : "The manager bundle for Minimal",
+    "type" : "symfony-bundle",
+    "keywords" : [
+        "manager bundle"
+    ],
+    "license" : [
+        "MIT"
+    ],
+    "require" : {
+      "php": ">=5.5.9",
+      "symfony/symfony": "3.3.*",
+      "knplabs/knp-menu-bundle": "^2.0",
+      "egeloen/ckeditor-bundle": "^6.0",
+      "stof/doctrine-extensions-bundle": "^1.2",
+      "minimaloriginal/core-bundle": "dev-master"
+    },
+    "autoload": {
+        "psr-4": { "MinimalOriginal\\ManagerBundle\\": "src/" }
+    }
+}

@@ -1,0 +1,37 @@
+{% extends "MinimalManagerBundle::list.html.twig" %}
+{%- block content %}
+  <table>
+    <thead>
+      <tr>
+        <td>{{"Titre"|trans}}</td>
+        <td>{{"Actions"|trans}}</td>
+      </tr>
+    </thead>
+    <tbody>
+      {%- for object in data -%}
+        <tr>
+          <td>{{object}}</td>
+          <td>
+            <a href="{{path('minimal_manager_edit',{module: module.name, id: object.id})}}" title="{{"Éditer cet élément"|trans|e}}">{{"Éditer"|trans}}</a>
+            {%- if module.showRoute is defined -%}
+              <a href="{{path(module.showRoute,module.showRouteParams(object))}}" title="{{"Prévisualiser cet élément"|trans|e}}">{{"Prévisualiser"|trans}}</a>
+            {%- endif -%}
+          </td>
+        </tr>
+        {%- if object.children is defined and object.children is not null -%}
+          {%- for children in object.children -%}
+            <tr>
+              <td>--- {{children}}</td>
+              <td>
+                <a href="{{path('minimal_manager_edit',{module: module.name, id: children.id})}}" title="{{"Éditer cet élément"|trans|e}}">{{"Éditer"|trans}}</a>
+                {%- if module.showRoute is defined -%}
+                  <a href="{{path(module.showRoute,module.showRouteParams(children))}}" title="{{"Prévisualiser cet élément"|trans|e}}">{{"Prévisualiser"|trans}}</a>
+                {%- endif -%}
+              </td>
+            </tr>
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endfor -%}
+    </tbody>
+  </table>
+{% endblock -%}

@@ -1,0 +1,8 @@
+services:
+  minimal_manager.menu_builder:
+      class: MinimalOriginal\ManagerBundle\Menu\MenuBuilder
+      arguments: ["@knp_menu.factory", "@minimal_manager.module_list"]
+      calls:
+        - [setContainer, ["@service_container"]]
+      tags:
+          - { name: knp_menu.menu_builder, method: createMainMenu, alias: minimal_manager_main }

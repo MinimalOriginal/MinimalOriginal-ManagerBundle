@@ -1,0 +1,7 @@
+{% extends "MinimalManagerBundle::layout.html.twig" %}
+{%- block content %}
+  {{ form_start(form) }}
+  {{ form_widget(form) }}
+  <div class="text-right"><button type="submit" class="button">{{"Enregistrer"|trans}}</button></div>
+  {{ form_end(form) }}
+{% endblock -%}

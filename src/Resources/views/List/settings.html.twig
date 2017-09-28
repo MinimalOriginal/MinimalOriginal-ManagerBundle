@@ -1,0 +1,26 @@
+{% extends "MinimalManagerBundle::layout.html.twig" %}
+{%- block frame %}
+  <a href="{{path('minimal_manager_create',{module: 'core'})}}" class="button">{{"Ajouter une nouvelle entrée"|trans}}</a>
+  {%- block content %}
+    <table>
+      <thead>
+        <tr>
+          <td>{{"Attribut"|trans}}</td>
+          <td>{{"Valeur"|trans}}</td>
+          <td>{{"Actions"|trans}}</td>
+        </tr>
+      </thead>
+      <tbody>
+        {%- for object in data -%}
+          <tr>
+            <td>{{object.name}}</td>
+            <td>{%- if object.value is not null -%}{{object.value}}{%- else -%}~{%- endif -%}</td>
+            <td>
+              <a href="{{path('minimal_manager_settings_edit',{id: object.id})}}" title="{{"Éditer ce paramètre"|trans|e}}">{{"Éditer"|trans}}</a>
+            </td>
+          </tr>
+        {%- endfor -%}
+      </tbody>
+    </table>
+  {% endblock -%}
+{% endblock -%}
