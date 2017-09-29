@@ -7,6 +7,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Gedmo\Tree\Entity\Repository\NestedTreeRepository;
+use MinimalOriginal\CoreBundle\Repository\QueryFilter;
+use MinimalOriginal\CoreBundle\Repository\AbstractRepository;
 
 /**
  * @Route("/manager")
@@ -23,15 +25,29 @@ class DefaultController extends Controller
 
   /**
    * @Route("/{module}", name="minimal_manager_list")
+   *
+   * @param QueryFilter $queryFilter
+   *
    */
-    public function listAction($module)
+    public function listAction(QueryFilter $queryFilter, $module)
     {
       $module_list = $this->container->get('minimal_manager.module_list');
       $module = $module_list->getModule($module);
 
-      $repository = $this->getDoctrine()->getRepository($module->getEntityClass());
+      if( null === $queryFilter->getOrderType() ){
+        $queryFilter->setOrderType('updated');
+      }
+      $repository = $this->getDoctrine()
+        ->getRepository($module->getEntityClass())
+        ;
+      if( $repository instanceof AbstractRepository ){
+        $repository->setQueryFilter($queryFilter);
+      }
+
       if( $repository instanceof NestedTreeRepository ){
         $data = $repository->getRootNodes();
+      }elseif( $repository instanceof AbstractRepository ){
+        $data = $repository->findList();
       }else{
         $data = $repository->findAll();
       }

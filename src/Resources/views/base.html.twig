@@ -1,0 +1,21 @@
+{% extends "MinimalCoreBundle:Layout:eagle.html.twig" %}
+
+{% block html %}
+<!doctype html>
+<html class="no-js" lang="{{app.request.locale}}">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block page_title %}{% endblock %}</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+    {% block stylesheets %}{{parent()}}{% endblock stylesheets %}
+  </head>
+  <body>
+    {% block body %}
+      {% block content %}{{parent()}}{% endblock content %}
+    {% endblock body %}
+    {% block javascripts %}{{parent()}}{% endblock javascripts %}
+  </body>
+</html>
+{% endblock html %}

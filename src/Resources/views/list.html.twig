@@ -1,5 +1,7 @@
 {% extends "MinimalManagerBundle::layout.html.twig" %}
 {%- block frame %}
+  <h3>{{module.title}}</h3>
+  {%- if module.description is defined -%}<p class="description">{{module.description}}</p>{%- endif -%}
   <a href="{{path('minimal_manager_create',{module: module.name})}}" class="button">{{"Ajouter une nouvelle entrée"|trans}}</a>
-  {%- block content %}{% endblock -%}
+  {%- block data %}{% endblock -%}
 {% endblock -%}

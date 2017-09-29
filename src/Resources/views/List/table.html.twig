@@ -1,9 +1,11 @@
 {% extends "MinimalManagerBundle::list.html.twig" %}
-{%- block content %}
+{%- block data %}
   <table>
     <thead>
       <tr>
         <td>{{"Titre"|trans}}</td>
+        <td>{{"Création"|trans}}</td>
+        <td>{% embed "MinimalCoreBundle:UI:filter.html.twig" with {filter_name: 'order', request: app.request} %}{% endembed %}</td>
         <td>{{"Actions"|trans}}</td>
       </tr>
     </thead>
@@ -11,22 +13,30 @@
       {%- for object in data -%}
         <tr>
           <td>{{object}}</td>
+          <td>{{object.created|localizeddate('medium', 'short', app.request.locale)}}</td>
+          <td>{{object.updated|localizeddate('medium', 'short', app.request.locale)}}</td>
           <td>
-            <a href="{{path('minimal_manager_edit',{module: module.name, id: object.id})}}" title="{{"Éditer cet élément"|trans|e}}">{{"Éditer"|trans}}</a>
-            {%- if module.showRoute is defined -%}
-              <a href="{{path(module.showRoute,module.showRouteParams(object))}}" title="{{"Prévisualiser cet élément"|trans|e}}">{{"Prévisualiser"|trans}}</a>
-            {%- endif -%}
+            <ul class="menu simple">
+              <li><a href="{{path('minimal_manager_edit',{module: module.name, id: object.id})}}" title="{{"Éditer cet élément"|trans|e}}">{{"Éditer"|trans}}</a></li>
+              {%- if module.showRoute is defined -%}
+                <li><a href="{{path(module.showRoute,module.showRouteParams(object))}}" title="{{"Prévisualiser cet élément"|trans|e}}">{{"Prévisualiser"|trans}}</a></li>
+              {%- endif -%}
+            </ul>
           </td>
         </tr>
         {%- if object.children is defined and object.children is not null -%}
           {%- for children in object.children -%}
             <tr>
               <td>--- {{children}}</td>
+              <td>{{children.created|localizeddate('medium', 'short', app.request.locale)}}</td>
+              <td>{{children.updated|localizeddate('medium', 'short', app.request.locale)}}</td>
               <td>
-                <a href="{{path('minimal_manager_edit',{module: module.name, id: children.id})}}" title="{{"Éditer cet élément"|trans|e}}">{{"Éditer"|trans}}</a>
-                {%- if module.showRoute is defined -%}
-                  <a href="{{path(module.showRoute,module.showRouteParams(children))}}" title="{{"Prévisualiser cet élément"|trans|e}}">{{"Prévisualiser"|trans}}</a>
-                {%- endif -%}
+                <ul class="menu simple">
+                  <li><a href="{{path('minimal_manager_edit',{module: module.name, id: children.id})}}" title="{{"Éditer cet élément"|trans|e}}">{{"Éditer"|trans}}</a></li>
+                  {%- if module.showRoute is defined -%}
+                    <li><a href="{{path(module.showRoute,module.showRouteParams(children))}}" title="{{"Prévisualiser cet élément"|trans|e}}">{{"Prévisualiser"|trans}}</a></li>
+                  {%- endif -%}
+                </ul>
               </td>
             </tr>
           {%- endfor -%}
@@ -34,4 +44,5 @@
       {%- endfor -%}
     </tbody>
   </table>
+  {% embed "MinimalCoreBundle:UI:pagination.html.twig" with {data: data, request: app.request} %}{% endembed %}
 {% endblock -%}
