@@ -1,23 +1,57 @@
 {% extends "MinimalManagerBundle::list.html.twig" %}
+
+{% set queryFilter = app.request.attributes.get('queryFilter') %}
+{% set routeName = routeName|default(queryFilter.routeName) %}
+{% set routeParams = routeParams|default(queryFilter.routeParams) %}
+
 {%- block data %}
+  {% for type, messages in app.session.flashbag.all() %}
+     {% for message in messages %}
+     {% if type == 'success' %}
+       <div class="success callout" data-closable="slide-out-right">
+        <p>{{ message }}</p>
+        <button class="close-button" aria-label="Dismiss alert" type="button" data-close>
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+     {% endif %}
+     {% endfor %}
+   {% endfor %}
   <table>
     <thead>
       <tr>
-        <td>{{"Titre"|trans}}</td>
-        <td>{{"Création"|trans}}</td>
-        <td>{% embed "MinimalCoreBundle:UI:filter.html.twig" with {filter_name: 'order', request: app.request} %}{% endembed %}</td>
+        {%- for field_id, field_name in exposedFields -%}
+          <td>
+            {%- if queryFilter.orderType is same as(field_id) -%}
+              <a href="{{ path(routeName, routeParams|merge({order: field_id, dir: queryFilter.revertOrderDir|lower })) }}">{{field_name}}</a>
+              {%- if queryFilter.orderDir is same as('ASC') -%}
+                &#x25B2;
+              {%- elseif queryFilter.orderDir is same as('DESC') -%}
+                &#x25BC;
+              {%- endif -%}
+            {%- else -%}
+              <a href="{{ path(routeName, routeParams|merge({order: field_id, dir: null})) }}">{{field_name}}</a>
+            {%- endif -%}
+          </td>
+        {%- endfor -%}
         <td>{{"Actions"|trans}}</td>
       </tr>
     </thead>
     <tbody>
       {%- for object in data -%}
         <tr>
-          <td>{{object}}</td>
-          <td>{{object.created|localizeddate('medium', 'short', app.request.locale)}}</td>
-          <td>{{object.updated|localizeddate('medium', 'short', app.request.locale)}}</td>
+          {%- for field_id, field_name in exposedFields -%}
+            {%- set attribute = attribute(object, field_id) -%}
+            {%- if attribute.timestamp is defined -%}
+              <td>{{attribute|localizeddate('medium', 'short', app.request.locale)}}</td>
+            {%- else -%}
+              <td>{{attribute}}</td>
+            {%- endif -%}
+          {%- endfor -%}
           <td>
             <ul class="menu simple">
               <li><a href="{{path('minimal_manager_edit',{module: module.name, id: object.id})}}" title="{{"Éditer cet élément"|trans|e}}">{{"Éditer"|trans}}</a></li>
+              <li><a href="{{path('minimal_manager_delete',{module: module.name, id: object.id})}}" title="{{"Supprimer cet élément"|trans|e}}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer celà ?');">{{"Supprimer"|trans}}</a></li>
               {%- if module.showRoute is defined -%}
                 <li><a href="{{path(module.showRoute,module.showRouteParams(object))}}" title="{{"Prévisualiser cet élément"|trans|e}}">{{"Prévisualiser"|trans}}</a></li>
               {%- endif -%}
@@ -26,10 +60,15 @@
         </tr>
         {%- if object.children is defined and object.children is not null -%}
           {%- for children in object.children -%}
-            <tr>
-              <td>--- {{children}}</td>
-              <td>{{children.created|localizeddate('medium', 'short', app.request.locale)}}</td>
-              <td>{{children.updated|localizeddate('medium', 'short', app.request.locale)}}</td>
+            <tr class="children">
+              {%- for field_id, field_name in exposedFields -%}
+                {%- set attribute = attribute(children, field_id) -%}
+                {%- if attribute.timestamp is defined -%}
+                  <td>{{attribute|localizeddate('medium', 'short', app.request.locale)}}</td>
+                {%- else -%}
+                  <td>{{attribute}}</td>
+                {%- endif -%}
+              {%- endfor -%}
               <td>
                 <ul class="menu simple">
                   <li><a href="{{path('minimal_manager_edit',{module: module.name, id: children.id})}}" title="{{"Éditer cet élément"|trans|e}}">{{"Éditer"|trans}}</a></li>

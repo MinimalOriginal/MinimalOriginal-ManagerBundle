@@ -9,6 +9,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Gedmo\Tree\Entity\Repository\NestedTreeRepository;
 use MinimalOriginal\CoreBundle\Repository\QueryFilter;
 use MinimalOriginal\CoreBundle\Repository\AbstractRepository;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
  * @Route("/manager")
@@ -34,9 +35,16 @@ class DefaultController extends Controller
       $module_list = $this->container->get('minimal_manager.module_list');
       $module = $module_list->getModule($module);
 
+      // Order type by default
       if( null === $queryFilter->getOrderType() ){
         $queryFilter->setOrderType('updated');
       }
+
+      // Get exposed fields
+      $exposure_manager = $this->container->get("minimal_exposure_annotation_manager");
+      $exposedFields = $exposure_manager->getExposedFields($module->getEntityClass(), 'manager');
+
+      // Get repository
       $repository = $this->getDoctrine()
         ->getRepository($module->getEntityClass())
         ;
@@ -55,6 +63,7 @@ class DefaultController extends Controller
       return $this->render('MinimalManagerBundle:List:table.html.twig',array(
         'data' => $data,
         'module' => $module,
+        'exposedFields' => $exposedFields,
       ));
     }
 
@@ -95,6 +104,39 @@ class DefaultController extends Controller
           'module' => $module,
           'form' => $form->createView(),
         ));
+    }
+
+    /**
+     * @Route("/{module}/delete/{id}", name="minimal_manager_delete", requirements={"id": "\d+"})
+     *
+     * @param Request $request
+     * @param string  $module
+     * @param int  $id
+     *
+     */
+    public function deleteAction(Request $request, $module, $id)
+    {
+        $module_list = $this->container->get('minimal_manager.module_list');
+        $module = $module_list->getModule($module);
+
+        $repository = $this->getDoctrine()->getRepository($module->getEntityClass());
+        $data = $repository->findOneBy(array('id'=>$id));
+        if( null === $data ){
+          throw new NotFoundHttpException("Vous essayez de supprimer quelque chose qui n'existe pas.");
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($data);
+        $em->flush();
+
+        $session = $this->container->get('session');
+        $session->getFlashBag()->add(
+          'success',
+          "L'élément a bien été supprimé."
+      );
+
+        return $this->redirectToRoute('minimal_manager_list', array('module' => $module->getName()));
+
     }
 
     /**
