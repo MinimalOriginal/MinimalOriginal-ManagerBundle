@@ -4,7 +4,34 @@
 {% set routeName = routeName|default(queryFilter.routeName) %}
 {% set routeParams = routeParams|default(queryFilter.routeParams) %}
 
+{% macro row(exposedFields, object, module, isChild = false) %}
+  <tr{% if isChild is same as(true) %} class="children"{% endif %}>
+    {%- for field_id, field_name in exposedFields -%}
+      {%- set attribute = attribute(object, field_id) -%}
+      {%- if attribute.timestamp is defined -%}
+        <td>{{attribute|localizeddate('medium', 'short', app.request.locale)}}</td>
+      {%- else -%}
+        <td>{{attribute}}</td>
+      {%- endif -%}
+    {%- endfor -%}
+    <td>
+      <ul class="menu simple">
+        {% if isChild is same as(true) %}
+        <li><a href="{{path('minimal_manager_move_up',{module: module.name, id: object.id})}}" title="{{"Remonter l'élément"|trans|e}}">{{"Remonter"|trans}}</a></li>
+        <li><a href="{{path('minimal_manager_move_down',{module: module.name, id: object.id})}}" title="{{"Redescendre l'élément"|trans|e}}">{{"Redescendre"|trans}}</a></li>
+        {% endif %}
+        <li><a href="{{path('minimal_manager_edit',{module: module.name, id: object.id})}}" title="{{"Éditer cet élément"|trans|e}}">{{"Éditer"|trans}}</a></li>
+        <li><a href="{{path('minimal_manager_delete',{module: module.name, id: object.id})}}" title="{{"Supprimer cet élément"|trans|e}}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer celà ?');">{{"Supprimer"|trans}}</a></li>
+        {%- if module.showRoute is defined -%}
+          <li><a href="{{path(module.showRoute,module.showRouteParams(object))}}" title="{{"Prévisualiser cet élément"|trans|e}}">{{"Prévisualiser"|trans}}</a></li>
+        {%- endif -%}
+      </ul>
+    </td>
+  </tr>
+{% endmacro %}
+
 {%- block data %}
+  {% import _self as table %}
   {% for type, messages in app.session.flashbag.all() %}
      {% for message in messages %}
      {% if type == 'success' %}
@@ -39,45 +66,10 @@
     </thead>
     <tbody>
       {%- for object in data -%}
-        <tr>
-          {%- for field_id, field_name in exposedFields -%}
-            {%- set attribute = attribute(object, field_id) -%}
-            {%- if attribute.timestamp is defined -%}
-              <td>{{attribute|localizeddate('medium', 'short', app.request.locale)}}</td>
-            {%- else -%}
-              <td>{{attribute}}</td>
-            {%- endif -%}
-          {%- endfor -%}
-          <td>
-            <ul class="menu simple">
-              <li><a href="{{path('minimal_manager_edit',{module: module.name, id: object.id})}}" title="{{"Éditer cet élément"|trans|e}}">{{"Éditer"|trans}}</a></li>
-              <li><a href="{{path('minimal_manager_delete',{module: module.name, id: object.id})}}" title="{{"Supprimer cet élément"|trans|e}}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer celà ?');">{{"Supprimer"|trans}}</a></li>
-              {%- if module.showRoute is defined -%}
-                <li><a href="{{path(module.showRoute,module.showRouteParams(object))}}" title="{{"Prévisualiser cet élément"|trans|e}}">{{"Prévisualiser"|trans}}</a></li>
-              {%- endif -%}
-            </ul>
-          </td>
-        </tr>
+        {{table.row(exposedFields, object, module)}}
         {%- if object.children is defined and object.children is not null -%}
           {%- for children in object.children -%}
-            <tr class="children">
-              {%- for field_id, field_name in exposedFields -%}
-                {%- set attribute = attribute(children, field_id) -%}
-                {%- if attribute.timestamp is defined -%}
-                  <td>{{attribute|localizeddate('medium', 'short', app.request.locale)}}</td>
-                {%- else -%}
-                  <td>{{attribute}}</td>
-                {%- endif -%}
-              {%- endfor -%}
-              <td>
-                <ul class="menu simple">
-                  <li><a href="{{path('minimal_manager_edit',{module: module.name, id: children.id})}}" title="{{"Éditer cet élément"|trans|e}}">{{"Éditer"|trans}}</a></li>
-                  {%- if module.showRoute is defined -%}
-                    <li><a href="{{path(module.showRoute,module.showRouteParams(children))}}" title="{{"Prévisualiser cet élément"|trans|e}}">{{"Prévisualiser"|trans}}</a></li>
-                  {%- endif -%}
-                </ul>
-              </td>
-            </tr>
+            {{table.row(exposedFields, children, module, true)}}
           {%- endfor -%}
         {%- endif -%}
       {%- endfor -%}

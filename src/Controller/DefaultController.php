@@ -121,6 +121,60 @@ class DefaultController extends Controller
     }
 
     /**
+     * @Route("/{module}/move-up/{id}", name="minimal_manager_move_up", requirements={"id": "\d+"})
+     *
+     * @param Request $request
+     * @param string  $module
+     * @param int  $id
+     *
+     */
+    public function moveUpAction(Request $request, $module, $id)
+    {
+      $module_list = $this->container->get('minimal_manager.module_list');
+      $module = $module_list->getModule($module);
+
+        $repository = $this->getDoctrine()->getRepository($module->getEntityClass());
+        $data = $repository->findOneBy(array('id'=>$id));
+        if( null === $data ){
+          throw new NotFoundHttpException("Vous essayez changer la position de quelque chose qui n'existe pas.");
+        }
+
+        if( $repository instanceof NestedTreeRepository ){
+          $repository->moveUp($data, 1);
+        }
+
+        return $this->redirectToRoute('minimal_manager_list', array('module' => $module->getName()));
+
+    }
+
+    /**
+     * @Route("/{module}/move-down/{id}", name="minimal_manager_move_down", requirements={"id": "\d+"})
+     *
+     * @param Request $request
+     * @param string  $module
+     * @param int  $id
+     *
+     */
+    public function moveDownAction(Request $request, $module, $id)
+    {
+      $module_list = $this->container->get('minimal_manager.module_list');
+      $module = $module_list->getModule($module);
+
+        $repository = $this->getDoctrine()->getRepository($module->getEntityClass());
+        $data = $repository->findOneBy(array('id'=>$id));
+        if( null === $data ){
+          throw new NotFoundHttpException("Vous essayez changer la position de quelque chose qui n'existe pas.");
+        }
+
+        if( $repository instanceof NestedTreeRepository ){
+          $repository->moveDown($data, 1);
+        }
+
+        return $this->redirectToRoute('minimal_manager_list', array('module' => $module->getName()));
+
+    }
+
+    /**
      * @Route("/{module}/delete/{id}", name="minimal_manager_delete", requirements={"id": "\d+"})
      *
      * @param Request $request
