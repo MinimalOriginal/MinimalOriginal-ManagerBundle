@@ -17,14 +17,14 @@
     <td>
       <ul class="menu simple">
         {% if isChild is same as(true) %}
-        <li><a href="{{path('minimal_manager_move_up',{module: module.name, id: object.id})}}" title="{{"Remonter l'élément"|trans|e}}">{{"Remonter"|trans}}</a></li>
-        <li><a href="{{path('minimal_manager_move_down',{module: module.name, id: object.id})}}" title="{{"Redescendre l'élément"|trans|e}}">{{"Redescendre"|trans}}</a></li>
+        <li><a href="{{path('minimal_manager_move_up',{module: module.name, id: object.id})}}" title="{{"Remonter l'élément"|trans|e}}"><i class="icon ion-arrow-up-b"></i></a></li>
+        <li><a href="{{path('minimal_manager_move_down',{module: module.name, id: object.id})}}" title="{{"Redescendre l'élément"|trans|e}}"><i class="icon ion-arrow-down-b"></i></a></li>
         {% endif %}
-        <li><a href="{{path('minimal_manager_edit',{module: module.name, id: object.id})}}" title="{{"Éditer cet élément"|trans|e}}">{{"Éditer"|trans}}</a></li>
-        <li><a href="{{path('minimal_manager_delete',{module: module.name, id: object.id})}}" title="{{"Supprimer cet élément"|trans|e}}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer celà ?');">{{"Supprimer"|trans}}</a></li>
         {%- if module.showRoute is defined -%}
-          <li><a href="{{path(module.showRoute,module.showRouteParams(object))}}" title="{{"Prévisualiser cet élément"|trans|e}}">{{"Prévisualiser"|trans}}</a></li>
+          <li><a href="{{path(module.showRoute,module.showRouteParams(object))}}" title="{{"Prévisualiser cet élément"|trans|e}}"><i class="icon ion-eye"></i></a></li>
         {%- endif -%}
+        <li><a href="{{path('minimal_manager_edit',{module: module.name, id: object.id})}}" title="{{"Éditer cet élément"|trans|e}}"><i class="icon ion-edit"></i></a></li>
+        <li><a href="{{path('minimal_manager_delete',{module: module.name, id: object.id})}}" title="{{"Supprimer cet élément"|trans|e}}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer celà ?');"><i class="icon ion-trash-b"></i></a></li>
       </ul>
     </td>
   </tr>
