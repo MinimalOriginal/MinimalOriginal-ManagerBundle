@@ -3,13 +3,19 @@
 namespace MinimalOriginal\ManagerBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Filesystem\Filesystem;
+
 use Gedmo\Tree\Entity\Repository\NestedTreeRepository;
+
+use MinimalOriginal\CoreBundle\Routing\Annotation\Route;
 use MinimalOriginal\CoreBundle\Repository\QueryFilter;
 use MinimalOriginal\CoreBundle\Repository\AbstractRepository;
-use Symfony\Component\HttpFoundation\Session\Session;
+
+use MinimalOriginal\CoreBundle\Entity\App;
+use MinimalOriginal\CoreBundle\Entity\Routing;
 
 /**
  * @Route("/manager")
@@ -17,7 +23,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 class DefaultController extends Controller
 {
   /**
-   * @Route("/", name="minimal_manager_home")
+   * @Route("/", name="minimal_manager_home", title="Manager")
    */
     public function indexAction()
     {
@@ -94,6 +100,14 @@ class DefaultController extends Controller
           $em = $this->getDoctrine()->getManager();
           $em->persist($data);
           $em->flush();
+
+          if( $data instanceof App || $data instanceof Routing ){
+            $router = $this->container->get('router');
+            if( null !== $router->getOption('cache_dir') && null !== $router->getOption('matcher_cache_class') ){
+              $fs = new Filesystem();
+              $fs->remove($router->getOption('cache_dir') . '/' . $router->getOption('matcher_cache_class') . '.php');
+            }
+          }
 
           return $this->redirectToRoute('minimal_manager_list', array('module' => $module->getName()));
 
