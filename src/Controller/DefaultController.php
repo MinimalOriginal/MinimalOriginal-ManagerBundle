@@ -83,8 +83,8 @@ class DefaultController extends Controller
      */
     public function editAction(Request $request, $module, $id)
     {
-      $module_list = $this->container->get('minimal_manager.module_list');
-      $module = $module_list->getModule($module);
+        $module_list = $this->container->get('minimal_manager.module_list');
+        $module = $module_list->getModule($module);
 
         $repository = $this->getDoctrine()->getRepository($module->getEntityClass());
         $data = $repository->findOneBy(array('id'=>$id));
@@ -97,9 +97,7 @@ class DefaultController extends Controller
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
 
-          $em = $this->getDoctrine()->getManager();
-          $em->persist($data);
-          $em->flush();
+          $module->updateModel($data);
 
           if( $data instanceof App || $data instanceof Routing ){
             $router = $this->container->get('router');
@@ -130,8 +128,8 @@ class DefaultController extends Controller
      */
     public function moveUpAction(Request $request, $module, $id)
     {
-      $module_list = $this->container->get('minimal_manager.module_list');
-      $module = $module_list->getModule($module);
+        $module_list = $this->container->get('minimal_manager.module_list');
+        $module = $module_list->getModule($module);
 
         $repository = $this->getDoctrine()->getRepository($module->getEntityClass());
         $data = $repository->findOneBy(array('id'=>$id));
@@ -157,8 +155,8 @@ class DefaultController extends Controller
      */
     public function moveDownAction(Request $request, $module, $id)
     {
-      $module_list = $this->container->get('minimal_manager.module_list');
-      $module = $module_list->getModule($module);
+        $module_list = $this->container->get('minimal_manager.module_list');
+        $module = $module_list->getModule($module);
 
         $repository = $this->getDoctrine()->getRepository($module->getEntityClass());
         $data = $repository->findOneBy(array('id'=>$id));
@@ -193,9 +191,7 @@ class DefaultController extends Controller
           throw new NotFoundHttpException("Vous essayez de supprimer quelque chose qui n'existe pas.");
         }
 
-        $em = $this->getDoctrine()->getManager();
-        $em->remove($data);
-        $em->flush();
+        $module->removeModel($data);
 
         $session = $this->container->get('session');
         $session->getFlashBag()->add(
@@ -215,18 +211,16 @@ class DefaultController extends Controller
      */
     public function createAction(Request $request, $module)
     {
-      $module_list = $this->container->get('minimal_manager.module_list');
-      $module = $module_list->getModule($module);
-        $entity_class = $module->getEntityClass();
-        $data = new $entity_class();
+        $module_list = $this->container->get('minimal_manager.module_list');
+        $module = $module_list->getModule($module);
+
+        $data = $module->createModel();
         $form = $this->createForm($module->getFormTypeClass(), $data);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
 
-          $em = $this->getDoctrine()->getManager();
-          $em->persist($data);
-          $em->flush();
+          $module->updateModel($data);
 
           return $this->redirectToRoute('minimal_manager_list', array('module' => $module->getName()));
 
@@ -239,13 +233,4 @@ class DefaultController extends Controller
         ));
     }
 
-    private function getEntityConfig($entity){
-
-      $bundles = $this->container->getParameter('minimal_manager.bundles');
-      if( true === array_key_exists($entity, $bundles) ){
-        return $bundles[$entity];
-      }else{
-        throw new NotFoundHttpException("Ce module n'existe pas.");
-      }
-    }
 }
