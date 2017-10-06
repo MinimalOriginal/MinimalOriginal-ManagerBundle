@@ -1,7 +1,7 @@
 {% extends "MinimalManagerBundle::base.html.twig" %}
 
 {%- block sidebar %}
-  {{ knp_menu_render('minimal_manager_main') }}
+  <div class="manager-nav">{{ knp_menu_render('minimal_manager_modules') }}</div>
 {% endblock -%}
 {%- block frame %}
   <h3>{{"Manager"|trans}}</h3>

@@ -8,26 +8,37 @@
   <tr{% if isChild is same as(true) %} class="children"{% endif %}>
     {%- for field_id, field_name in exposedFields -%}
       {%- set attribute = attribute(object, field_id) -%}
+      <td><a href="{{path('minimal_manager_edit',{module: module.informations.get('name'), id: object.id})}}" title="{{"Éditer cet élément"|trans|e}}">
       {%- if attribute.timestamp is defined -%}
-        <td>{{attribute|localizeddate('medium', 'short', app.request.locale)}}</td>
+        {{attribute|localizeddate('medium', 'short', app.request.locale)}}
       {%- else -%}
-        <td>{{attribute}}</td>
+        {{attribute}}
       {%- endif -%}
+      </a></td>
     {%- endfor -%}
     <td>
       <ul class="menu simple">
         {% if isChild is same as(true) %}
-        <li><a href="{{path('minimal_manager_move_up',{module: module.name, id: object.id})}}" title="{{"Remonter l'élément"|trans|e}}"><i class="icon ion-arrow-up-b"></i></a></li>
-        <li><a href="{{path('minimal_manager_move_down',{module: module.name, id: object.id})}}" title="{{"Redescendre l'élément"|trans|e}}"><i class="icon ion-arrow-down-b"></i></a></li>
+        <li><a href="{{path('minimal_manager_move_up',{module: module.informations.get('name'), id: object.id})}}" title="{{"Remonter l'élément"|trans|e}}" class="text-black"><i class="icon ion-arrow-up-b"></i></a></li>
+        <li><a href="{{path('minimal_manager_move_down',{module: module.informations.get('name'), id: object.id})}}" title="{{"Redescendre l'élément"|trans|e}}" class="text-black"><i class="icon ion-arrow-down-b"></i></a></li>
         {% endif %}
+        <li><a href="{{path('minimal_manager_edit',{module: module.informations.get('name'), id: object.id})}}" title="{{"Éditer cet élément"|trans|e}}"><i class="icon ion-edit"></i></a></li>
         {%- if object.showRoute is defined -%}
-          <li><a href="{{path(object.showRoute.route,object.showRoute.params)}}" title="{{"Prévisualiser cet élément"|trans|e}}"><i class="icon ion-eye"></i></a></li>
+          <li><a href="{{path(object.showRoute.get('route'),object.showRoute.get('params'))}}" title="{{"Prévisualiser cet élément"|trans|e}}" class="text-black"><i class="icon ion-eye"></i></a></li>
         {%- endif -%}
-        <li><a href="{{path('minimal_manager_edit',{module: module.name, id: object.id})}}" title="{{"Éditer cet élément"|trans|e}}"><i class="icon ion-edit"></i></a></li>
-        <li><a href="{{path('minimal_manager_delete',{module: module.name, id: object.id})}}" title="{{"Supprimer cet élément"|trans|e}}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer celà ?');"><i class="icon ion-trash-b"></i></a></li>
+        <li><a href="{{path('minimal_manager_delete',{module: module.informations.get('name'), id: object.id})}}" title="{{"Supprimer cet élément"|trans|e}}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer celà ?');" class="text-red"><i class="icon ion-trash-b"></i></a></li>
       </ul>
     </td>
   </tr>
+{% endmacro %}
+{% macro rows(exposedFields, objects, module, isChild = false) %}
+{% import _self as table %}
+  {%- for object in objects -%}
+    {{table.row(exposedFields, object, module, isChild)}}
+    {%- if object.children is defined and object.children is not null -%}
+      {{table.rows(exposedFields, object.children, module, true)}}
+    {%- endif -%}
+  {%- endfor -%}
 {% endmacro %}
 
 {%- block data %}
@@ -48,14 +59,16 @@
     <thead>
       <tr>
         {%- for field_id, field_name in exposedFields -%}
-          <td>
+          <td{% if queryFilter.orderType is same as(field_id) %} class="bg-white"{% endif %}>
             {%- if queryFilter.orderType is same as(field_id) -%}
-              <a href="{{ path(routeName, routeParams|merge({order: field_id, dir: queryFilter.revertOrderDir|lower })) }}">{{field_name}}</a>
+              <a href="{{ path(routeName, routeParams|merge({order: field_id, dir: queryFilter.revertOrderDir|lower })) }}">
+              {{field_name}}&nbsp;
               {%- if queryFilter.orderDir is same as('ASC') -%}
-                &#x25B2;
+                <i class="icon ion-ios-arrow-up"></i>
               {%- elseif queryFilter.orderDir is same as('DESC') -%}
-                &#x25BC;
+                <i class="icon ion-ios-arrow-down"></i>
               {%- endif -%}
+            </a>
             {%- else -%}
               <a href="{{ path(routeName, routeParams|merge({order: field_id, dir: null})) }}">{{field_name}}</a>
             {%- endif -%}
@@ -65,14 +78,7 @@
       </tr>
     </thead>
     <tbody>
-      {%- for object in data -%}
-        {{table.row(exposedFields, object, module)}}
-        {%- if object.children is defined and object.children is not null -%}
-          {%- for children in object.children -%}
-            {{table.row(exposedFields, children, module, true)}}
-          {%- endfor -%}
-        {%- endif -%}
-      {%- endfor -%}
+      {{table.rows(exposedFields, data, module)}}
     </tbody>
   </table>
   {% embed "MinimalCoreBundle:UI:pagination.html.twig" with {data: data, request: app.request} %}{% endembed %}

@@ -9,12 +9,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block page_title %}{% endblock %}</title>
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
-    {% block stylesheets %}{{parent()}}{% endblock stylesheets %}
+    {% block stylesheets %}
+      {{parent()}}
+      {% stylesheets filter="compass" filter='uglifycss' output='css/manager.css'
+      "@MinimalManagerBundle/Resources/assets/scss/manager.scss" %}
+          <link rel="stylesheet" href="{{ asset_url }}"/>
+      {% endstylesheets %}
+    {% endblock stylesheets %}
   </head>
   <body>
+    <div class="off-canvas-content">
+    {% block topbar %}
+    <div class="sticky-top-bar">
+      <div class="row collapse expanded">
+        <div class="columns">
+          <div class="top-bar">
+            <div class="top-bar-title">
+              <ul class="dropdown menu" data-dropdown-menu><li><a href="{{path('minimal_front_home')}}" title="{{"Se rendre sur l'accueil du site"|trans|e}}">{{"Voir mon site"|trans}}</a></li></ul>
+            </div>
+            <div class="top-bar-left">
+              {{ knp_menu_render('minimal_manager_main') }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endblock topbar %}
     {% block body %}
-      {% block content %}{{parent()}}{% endblock content %}
+      {%- block content %}
+        <div class="expanded collapse row">
+          <div class="medium-3 large-2 medium-pull-9 large-pull-10 columns sidebar" data-sticky-container>
+            <div class="sticky" data-sticky data-margin-top="0" data-anchor="body-container">{%- block sidebar %}{% endblock -%}</div>
+          </div>
+          <div id="body-container" class="small-12 medium-9 large-10 medium-push-3 large-push-2 columns">
+            <div class="columns">
+              {%- block frame %}{%- block data %}{% endblock -%}{% endblock -%}
+            </div>
+          </div>
+        </div>
+      {% endblock -%}
     {% endblock body %}
+    </div>
     {% block javascripts %}{{parent()}}{% endblock javascripts %}
   </body>
 </html>

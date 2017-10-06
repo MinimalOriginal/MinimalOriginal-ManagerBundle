@@ -1,7 +1,13 @@
 {% extends "MinimalManagerBundle::layout.html.twig" %}
 {%- block frame %}
-  <h3>{{module.title}}</h3>
-  {%- if module.description is defined -%}<p class="description">{{module.description}}</p>{%- endif -%}
-  <a href="{{path('minimal_manager_create',{module: module.name})}}" class="button">{{"Ajouter une nouvelle entrée"|trans}}</a>
+<div class="row expanded align-middle">
+  <div class="columns small-12 medium-9">
+    <h3>{%- if module.informations.get('icon') is not null -%}<i class="icon {{module.informations.get('icon')}}"></i>&nbsp;{%- endif -%}{{module.informations.get('title')}}</h3>
+    {%- if module.informations.get('description') is not null -%}<p class="description">{{module.informations.get('description')}}</p>{%- endif -%}
+  </div>
+  <div class="columns small-12 medium-3 text-right">
+    <a href="{{path('minimal_manager_create',{module: module.informations.get('name')})}}" class="button small hollow"><i class="icon ion-ios-plus-outline"></i>&nbsp;{{"Ajouter une nouvelle entrée"|trans}}</a>
+  </div>
+</div>
   {%- block data %}{% endblock -%}
 {% endblock -%}
