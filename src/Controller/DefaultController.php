@@ -107,7 +107,7 @@ class DefaultController extends Controller
             }
           }
 
-          return $this->redirectToRoute('minimal_manager_list', array('module' => $module->getName()));
+          return $this->redirectToRoute('minimal_manager_list', array('module' => $module->getInformations()->get('name')));
 
         }
 
@@ -141,7 +141,7 @@ class DefaultController extends Controller
           $repository->moveUp($data, 1);
         }
 
-        return $this->redirectToRoute('minimal_manager_list', array('module' => $module->getName()));
+        return $this->redirectToRoute('minimal_manager_list', array('module' => $module->getInformations()->get('name')));
 
     }
 
@@ -168,7 +168,7 @@ class DefaultController extends Controller
           $repository->moveDown($data, 1);
         }
 
-        return $this->redirectToRoute('minimal_manager_list', array('module' => $module->getName()));
+        return $this->redirectToRoute('minimal_manager_list', array('module' => $module->getInformations()->get('name')));
 
     }
 
@@ -199,7 +199,7 @@ class DefaultController extends Controller
           "L'élément a bien été supprimé."
       );
 
-        return $this->redirectToRoute('minimal_manager_list', array('module' => $module->getName()));
+        return $this->redirectToRoute('minimal_manager_list', array('module' => $module->getInformations()->get('name')));
 
     }
 
@@ -222,7 +222,7 @@ class DefaultController extends Controller
 
           $module->updateModel($data);
 
-          return $this->redirectToRoute('minimal_manager_list', array('module' => $module->getName()));
+          return $this->redirectToRoute('minimal_manager_list', array('module' => $module->getInformations()->get('name')));
 
         }
 
@@ -232,5 +232,36 @@ class DefaultController extends Controller
           'form' => $form->createView(),
         ));
     }
+
+    /**
+     * @Route("/{module}/batch", name="minimal_manager_batch")
+     *
+     * @param Request $request
+     * @param string  $module
+     */
+    public function batchAction(Request $request, $module)
+    {
+      $module_list = $this->container->get('minimal_manager.module_list');
+      $module = $module_list->getModule($module);
+
+      $action = $request->request->get('action');
+      if( true === is_array($request->request->get('item')) && count($request->request->get('item')) > 0 ){
+        $repository = $this->getDoctrine()->getRepository($module->getEntityClass());
+        switch( $action ){
+          case 'delete':
+            foreach($request->request->get('item') as $item){
+              $data = $repository->findOneBy(array('id'=>$item));
+              if( null !== $data ){
+                $module->removeModel($data,false);
+              }
+            }
+            $module->flush();
+          break;
+        }
+      }
+      return $this->redirectToRoute('minimal_manager_list', array('module' => $module->getInformations()->get('name')));
+
+    }
+
 
 }

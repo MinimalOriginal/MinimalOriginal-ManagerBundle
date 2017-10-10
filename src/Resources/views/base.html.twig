@@ -50,7 +50,15 @@
       {% endblock -%}
     {% endblock body %}
     </div>
-    {% block javascripts %}{{parent()}}{% endblock javascripts %}
+    {% block javascripts %}
+      {{parent()}}
+      {% javascripts filter='?yui_js'
+          'bundles/fosjsrouting/js/router.js'
+          'js/fos_js_routes.js'
+      %}
+          <script src="{{ asset_url }}"></script>
+      {% endjavascripts %}
+    {% endblock javascripts %}
   </body>
 </html>
 {% endblock html %}

@@ -4,15 +4,13 @@ namespace MinimalOriginal\ManagerBundle\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\Loader;
+use Symfony\Component\Yaml\Yaml;
 
-/**
- * This is the class that loads and manages your bundle configuration.
- *
- * @link http://symfony.com/doc/current/cookbook/bundles/extension.html
- */
-class MinimalManagerExtension extends Extension
+
+class MinimalManagerExtension extends Extension implements PrependExtensionInterface
 {
     /**
      * {@inheritdoc}
@@ -25,6 +23,24 @@ class MinimalManagerExtension extends Extension
         $loader->load('services.yml');
         if( true === isset($config['module']) && true === is_array($config['module'])){
           $container->setParameter('minimal_manager.module',$config['module']);
+        }
+    }
+
+    public function prepend(ContainerBuilder $container)
+    {
+        $bundles = $container->getParameter('kernel.bundles');
+        if ( true === isset($bundles['IvoryCKEditorBundle']) ) {
+
+          $file = __DIR__.'/../Resources/config/ivory_ck_editor_config.yml';
+          $ivory_ck_editor_config = Yaml::parse(file_get_contents($file));
+
+            foreach ($container->getExtensions() as $name => $extension) {
+                switch ($name) {
+                  case 'ivory_ck_editor':
+                      $container->prependExtensionConfig($name, $ivory_ck_editor_config);
+                      break;
+                }
+            }
         }
     }
 }

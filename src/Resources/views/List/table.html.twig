@@ -6,13 +6,20 @@
 
 {% macro row(exposedFields, object, module, isChild = false) %}
   <tr{% if isChild is same as(true) %} class="children"{% endif %}>
-    {%- for field_id, field_name in exposedFields -%}
+    <td><input type="checkbox" name="item[]" value="{{object.id}}"</td>
+    {%- for field_id, field in exposedFields -%}
+      {%- set field_name = field.name -%}
+      {%- set field_type = field.type is defined ? field.type : null -%}
       {%- set attribute = attribute(object, field_id) -%}
       <td><a href="{{path('minimal_manager_edit',{module: module.informations.get('name'), id: object.id})}}" title="{{"Éditer cet élément"|trans|e}}">
       {%- if attribute.timestamp is defined -%}
         {{attribute|localizeddate('medium', 'short', app.request.locale)}}
       {%- else -%}
-        {{attribute}}
+        {%- if field_type is same as('image') -%}
+          <img src="{{object.path|imagine_filter('medium')}}" />
+        {%- else -%}
+          {{attribute}}
+        {%- endif -%}
       {%- endif -%}
       </a></td>
     {%- endfor -%}
@@ -55,31 +62,53 @@
      {% endif %}
      {% endfor %}
    {% endfor %}
-  <table>
-    <thead>
-      <tr>
-        {%- for field_id, field_name in exposedFields -%}
-          <td{% if queryFilter.orderType is same as(field_id) %} class="bg-white"{% endif %}>
-            {%- if queryFilter.orderType is same as(field_id) -%}
-              <a href="{{ path(routeName, routeParams|merge({order: field_id, dir: queryFilter.revertOrderDir|lower })) }}">
-              {{field_name}}&nbsp;
-              {%- if queryFilter.orderDir is same as('ASC') -%}
-                <i class="icon ion-ios-arrow-up"></i>
-              {%- elseif queryFilter.orderDir is same as('DESC') -%}
-                <i class="icon ion-ios-arrow-down"></i>
-              {%- endif -%}
-            </a>
-            {%- else -%}
-              <a href="{{ path(routeName, routeParams|merge({order: field_id, dir: null})) }}">{{field_name}}</a>
-            {%- endif -%}
-          </td>
-        {%- endfor -%}
-        <td>{{"Actions"|trans}}</td>
-      </tr>
-    </thead>
-    <tbody>
-      {{table.rows(exposedFields, data, module)}}
-    </tbody>
-  </table>
+   <form method="POST" action="{{path('minimal_manager_batch',{module: module.informations.get('name')})}}">
+      <table>
+        <thead>
+          <tr>
+            <th width="50"></th>
+            {%- for field_id, field in exposedFields -%}
+              {%- set field_name = field.name -%}
+              <th{% if queryFilter.orderType is same as(field_id) %} class="bg-white"{% endif %}>
+                {%- if queryFilter.orderType is same as(field_id) -%}
+                  <a href="{{ path(routeName, routeParams|merge({order: field_id, dir: queryFilter.revertOrderDir|lower })) }}">
+                  {{field_name}}&nbsp;
+                  {%- if queryFilter.orderDir is same as('ASC') -%}
+                    <i class="icon ion-ios-arrow-up"></i>
+                  {%- elseif queryFilter.orderDir is same as('DESC') -%}
+                    <i class="icon ion-ios-arrow-down"></i>
+                  {%- endif -%}
+                </a>
+                {%- else -%}
+                  <a href="{{ path(routeName, routeParams|merge({order: field_id, dir: null})) }}">{{field_name}}</a>
+                {%- endif -%}
+              </th>
+            {%- endfor -%}
+            <th width="150">{{"Actions"|trans}}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{table.rows(exposedFields, data, module)}}
+        </tbody>
+      </table>
+      <div class="row expanded">
+        <div class="small-12 medium-6">
+          <div class="row">
+            <div class="small-12 medium-6">
+              <select name="action">
+                <option value="delete">{{"Supprimer"|trans}}</option>
+              </select>
+            </div>
+            <div class="small-12 medium-6">
+              <div>
+                <button type="submit" class="button">{{"OK"|trans}}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="small-12 medium-6">
+        </div>
+      </div>
+    </form>
   {% embed "MinimalCoreBundle:UI:pagination.html.twig" with {data: data, request: app.request} %}{% endembed %}
 {% endblock -%}
