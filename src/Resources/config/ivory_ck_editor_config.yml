@@ -2,10 +2,9 @@
 configs:
     minimal_config:
         toolbar: "minimal_toolbar"
-        extraPlugins: "mediasbrowser"
         mediasBrowserRoute: {route: "minimal_manager_list", params: {module: "image"}}
         mediasBrowserThumbFormat: "medium"
-        extraPlugins: "autogrow"
+        extraPlugins: "autogrow,dragresize,mediasbrowser"
         autoGrow_minHeight: 400
 toolbars:
     configs:
@@ -21,3 +20,10 @@ toolbars:
         styles:     [ "Styles","Format","Font","FontSize" ]
         colors:     [ "TextColor","BGColor" ]
         tools:     [ "Maximize","ShowBlocks" ]
+plugins:
+    autogrow:
+        path:     "/bundles/minimalmanager/js/ckeditor/plugins/autogrow/"
+        filename: "plugin.js"
+    dragresize:
+        path:     "/bundles/minimalmanager/js/ckeditor/plugins/dragresize/"
+        filename: "plugin.js"
