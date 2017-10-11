@@ -6,7 +6,7 @@
 
 {% macro row(exposedFields, object, module, isChild = false) %}
   <tr{% if isChild is same as(true) %} class="children"{% endif %}>
-    <td><input type="checkbox" name="item[]" value="{{object.id}}"</td>
+    <td><input type="checkbox" name="item[]" value="{{object.id}}"/></td>
     {%- for field_id, field in exposedFields -%}
       {%- set field_name = field.name -%}
       {%- set field_type = field.type is defined ? field.type : null -%}

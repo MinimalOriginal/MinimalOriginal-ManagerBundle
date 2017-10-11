@@ -5,6 +5,8 @@ configs:
         extraPlugins: "mediasbrowser"
         mediasBrowserRoute: {route: "minimal_manager_list", params: {module: "image"}}
         mediasBrowserThumbFormat: "medium"
+        extraPlugins: "autogrow"
+        autoGrow_minHeight: 400
 toolbars:
     configs:
         minimal_toolbar: [ "@document", "@clipboard", "@editing", "@tools", "/", "@basicstyles" , "@paragraph", "@links", "/", "@insert", "@styles", "@colors" ]
@@ -15,11 +17,7 @@ toolbars:
         basicstyles:     [ "Bold","Italic","Underline","Strike","Subscript","Superscript","-","RemoveFormat" ]
         paragraph:     [ "NumberedList","BulletedList","-","Outdent","Indent","-","Blockquote","CreateDiv", "-","JustifyLeft","JustifyCenter","JustifyRight","JustifyBlock","-" ]
         links:     [ "Link","Unlink","Anchor" ]
-        insert:     [ "Mediasbrowser", "Table","HorizontalRule","Smiley","SpecialChar" ]
+        insert:     [ "Table","HorizontalRule","Smiley","SpecialChar" ]
         styles:     [ "Styles","Format","Font","FontSize" ]
         colors:     [ "TextColor","BGColor" ]
         tools:     [ "Maximize","ShowBlocks" ]
-plugins:
-    mediasbrowser:
-        path:     "/bundles/minimalmanager/js/ckeditor/plugins/mediasbrowser/"
-        filename: "plugin.js"

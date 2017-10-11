@@ -1,0 +1,58 @@
+{% extends "MinimalManagerBundle::list.html.twig" %}
+
+{% macro row(exposedFields, object, module, isChild = false) %}
+  <tr{% if isChild is same as(true) %} class="children"{% endif %}>
+    {%- for field_id, field in exposedFields -%}
+      {%- set field_name = field.name -%}
+      {%- set field_type = field.type is defined ? field.type : null -%}
+      {%- set attribute = attribute(object, field_id) -%}
+      <td>
+      {%- if attribute.timestamp is defined -%}
+        {{attribute|localizeddate('medium', 'short', app.request.locale)}}
+      {%- else -%}
+        {%- if field_type is same as('image') -%}
+          <img src="{{object.path|imagine_filter('medium')}}" />
+        {%- else -%}
+          {{attribute}}
+        {%- endif -%}
+      {%- endif -%}
+      </td>
+    {%- endfor -%}
+
+    <td>
+      {%- if object.path is defined -%}
+      <a onclick="window.selectItem('{{module.informations.get('name')}}',{id: {{object.id}}, path: '{{object.path|imagine_filter('ck')}}'})">{{"Sélectionner"}}</a>
+      {%- else -%}
+      <a onclick="window.selectItem('{{module.informations.get('name')}}',{id: {{object.id}}})">{{"Sélectionner"}}</a>
+      {%- endif -%}
+    </td>
+  </tr>
+{% endmacro %}
+{% macro rows(exposedFields, objects, module, isChild = false) %}
+{% import _self as table %}
+  {%- for object in objects -%}
+    {{table.row(exposedFields, object, module, isChild)}}
+    {%- if object.children is defined and object.children is not null -%}
+      {{table.rows(exposedFields, object.children, module, true)}}
+    {%- endif -%}
+  {%- endfor -%}
+{% endmacro %}
+
+{%- block data %}
+  {% import _self as table %}
+    <table>
+      <thead>
+        <tr>
+          {%- for field_id, field in exposedFields -%}
+            {%- set field_name = field.name -%}
+            <th>{{field_name}}</th>
+          {%- endfor -%}
+          <th width="150">{{"Actions"|trans}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{table.rows(exposedFields, data, module)}}
+      </tbody>
+    </table>
+  {% embed "MinimalCoreBundle:UI:pagination.html.twig" with {data: data, request: app.request} %}{% endembed %}
+{% endblock -%}

@@ -34,44 +34,69 @@ class DefaultController extends Controller
    * @Route("/{module}", name="minimal_manager_list")
    *
    * @param QueryFilter $queryFilter
+   * @param string $module
    *
    */
     public function listAction(QueryFilter $queryFilter, $module)
     {
-      $module_list = $this->container->get('minimal_manager.module_list');
-      $module = $module_list->getModule($module);
 
-      // Order type by default
-      if( null === $queryFilter->getOrderType() ){
-        $queryFilter->setOrderType('updated');
-      }
-
-      // Get exposed fields
-      $exposure_manager = $this->container->get("minimal_exposure_annotation_manager");
-      $exposedFields = $exposure_manager->getExposedFields($module->getEntityClass(), 'manager');
-
-      // Get repository
-      $repository = $this->getDoctrine()
-        ->getRepository($module->getEntityClass())
-        ;
-      if( $repository instanceof AbstractRepository ){
-        $repository->setQueryFilter($queryFilter);
-      }
-
-      if( $repository instanceof NestedTreeRepository ){
-        $data = $repository->getRootNodes();
-      }elseif( $repository instanceof AbstractRepository ){
-        $data = $repository->findList();
-      }else{
-        $data = $repository->findAll();
-      }
-
-      return $this->render('MinimalManagerBundle:List:table.html.twig',array(
-        'data' => $data,
-        'module' => $module,
-        'exposedFields' => $exposedFields,
-      ));
+      return $this->render('MinimalManagerBundle:List:table.html.twig',$this->list($queryFilter, $module));
     }
+
+    /**
+     * @Route("/{module}/selecter", name="minimal_manager_selecter")
+     *
+     * @param QueryFilter $queryFilter
+     * @param string $module
+     *
+     */
+      public function selecterAction(QueryFilter $queryFilter, $module)
+      {
+        return $this->render('MinimalManagerBundle:List:selecter.html.twig',$this->list($queryFilter, $module));
+      }
+
+    /**
+     *
+     * @param QueryFilter $queryFilter
+     * @param string $module
+     *
+     */
+      private function list(QueryFilter $queryFilter, $module)
+      {
+        $module_list = $this->container->get('minimal_manager.module_list');
+        $module = $module_list->getModule($module);
+
+        // Order type by default
+        if( null === $queryFilter->getOrderType() ){
+          $queryFilter->setOrderType('updated');
+        }
+
+        // Get exposed fields
+        $exposure_manager = $this->container->get("minimal_exposure_annotation_manager");
+        $exposedFields = $exposure_manager->getExposedFields($module->getEntityClass(), 'manager');
+
+        // Get repository
+        $repository = $this->getDoctrine()
+          ->getRepository($module->getEntityClass())
+          ;
+        if( $repository instanceof AbstractRepository ){
+          $repository->setQueryFilter($queryFilter);
+        }
+
+        if( $repository instanceof NestedTreeRepository ){
+          $data = $repository->getRootNodes();
+        }elseif( $repository instanceof AbstractRepository ){
+          $data = $repository->findList();
+        }else{
+          $data = $repository->findAll();
+        }
+
+        return array(
+          'data' => $data,
+          'module' => $module,
+          'exposedFields' => $exposedFields,
+        );
+      }
 
     /**
      * @Route("/{module}/edit/{id}", name="minimal_manager_edit", requirements={"id": "\d+"})

@@ -7,3 +7,11 @@ services:
       tags:
           - { name: knp_menu.menu_builder, method: createModulesMenu, alias: minimal_manager_modules }
           - { name: knp_menu.menu_builder, method: createMainMenu, alias: minimal_manager_main }
+
+  minimal_manager.twig.extension:
+      class: MinimalOriginal\ManagerBundle\Twig\ManagerExtension
+      calls:
+        - [setModuleList, ["@minimal_manager.module_list"]]
+        - [setRouter, ["@router"]]
+      tags:
+          - { name: twig.extension }

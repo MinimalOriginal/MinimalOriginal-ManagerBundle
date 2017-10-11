@@ -29,17 +29,15 @@ class MinimalManagerExtension extends Extension implements PrependExtensionInter
     public function prepend(ContainerBuilder $container)
     {
         $bundles = $container->getParameter('kernel.bundles');
-        if ( true === isset($bundles['IvoryCKEditorBundle']) ) {
 
-          $file = __DIR__.'/../Resources/config/ivory_ck_editor_config.yml';
-          $ivory_ck_editor_config = Yaml::parse(file_get_contents($file));
+        $file = __DIR__.'/../Resources/config/ivory_ck_editor_config.yml';
+        $ivory_ck_editor_config = Yaml::parse(file_get_contents($file));
 
-            foreach ($container->getExtensions() as $name => $extension) {
-                switch ($name) {
-                  case 'ivory_ck_editor':
-                      $container->prependExtensionConfig($name, $ivory_ck_editor_config);
-                      break;
-                }
+        foreach ($container->getExtensions() as $name => $extension) {
+            switch ($name) {
+              case 'ivory_ck_editor':
+                  $container->prependExtensionConfig($name, $ivory_ck_editor_config);
+                  break;
             }
         }
     }
